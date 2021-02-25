@@ -22,4 +22,3 @@ class User(models.Model):
         today = datetime.date.today()
         birth_date = datetime.date(self.birth_year,self.birth_month,self.birth_day)
         return (today - birth_date).days // 365
-    
