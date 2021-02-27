@@ -26,6 +26,15 @@ class User(models.Model):
         birth_date = datetime.date(self.birth_year,self.birth_month,self.birth_day)
         return (today - birth_date).days // 365
 
+    @property
+    def profile(self):      # 与配置形成一对一关系，用id进行对应，在分布式环境下不适合使用数据库的外键
+        '''用户的配置项'''
+        if not hasattr(self, '_profile'):
+            _profile, created = Profile.objects.get_or_create(id=self.id)
+            self._profile = _profile
+        return self._profile
+
+
 class Profile(models.Model):
     '''用户配置项'''
 
@@ -33,7 +42,7 @@ class Profile(models.Model):
         ('男', '男'),
         ('女', '女'),
     )
-    dating_sex = models.CharField(max_length=8, choices=SEX, verbose_name='匹配的性别')
+    dating_sex = models.CharField(default='女', max_length=8, choices=SEX, verbose_name='匹配的性别')
     location = models.CharField(max_length=32, verbose_name='目标城市')
 
     min_distance = models.IntegerField(default=1, verbose_name='最小查找范围')
