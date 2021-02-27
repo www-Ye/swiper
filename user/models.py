@@ -1,5 +1,7 @@
 import datetime
+
 from django.db import models
+from django.utils.functional import cached_property
 
 # Create your models here.
 class User(models.Model):
@@ -16,11 +18,11 @@ class User(models.Model):
     avatar = models.CharField(max_length=256)       #头像
     location = models.CharField(max_length=32)
 
-    birth_year = models.IntegerField()
-    birth_month = models.IntegerField()
-    birth_day = models.IntegerField()
+    birth_year = models.IntegerField(default=2000)
+    birth_month = models.IntegerField(default=1)
+    birth_day = models.IntegerField(default=1)
 
-    @property
+    @cached_property
     def age(self):
         today = datetime.date.today()
         birth_date = datetime.date(self.birth_year,self.birth_month,self.birth_day)
@@ -30,8 +32,7 @@ class User(models.Model):
     def profile(self):      # 与配置形成一对一关系，用id进行对应，在分布式环境下不适合使用数据库的外键
         '''用户的配置项'''
         if not hasattr(self, '_profile'):
-            _profile, created = Profile.objects.get_or_create(id=self.id)
-            self._profile = _profile
+            self._profile, _ = Profile.objects.get_or_create(id=self.id)
         return self._profile
 
 
